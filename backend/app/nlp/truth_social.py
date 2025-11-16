@@ -10,8 +10,6 @@ TRUTHSOCIAL_PASSWORD = os.getenv("TRUTHSOCIAL_PASSWORD")
 
 api = Api(username=TRUTHSOCIAL_USERNAME, password=TRUTHSOCIAL_PASSWORD)
 
-
-
 user = "realDonaldTrump"
 statuses = api.pull_statuses(user)
 
