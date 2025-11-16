@@ -1,0 +1,103 @@
+########################################
+# Python / FastAPI Backend
+########################################
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env/
+.env.* 
+*.env
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# C extensions
+*.so
+
+# Cache / profiling
+.cache/
+pytest_cache/
+coverage.xml
+htmlcov/
+
+# SQLite DB (optional, remove if you want to track)
+*.db
+*.sqlite3
+
+# Logs
+*.log
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+
+########################################
+# Node / React Frontend
+########################################
+
+# Dependencies
+node_modules/
+
+# Production build
+frontend/dist/
+frontend/build/
+
+# Environment variables
+frontend/.env
+frontend/.env.*
+
+
+########################################
+# OS / Editor / Tools
+########################################
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# VSCode
+.vscode/
+.history/
+
+# JetBrains
+.idea/
+*.iml
+
+# Local tooling
+*.swp
+*.swo
+
+
+########################################
+# Harkonnen-Specific
+########################################
+
+# Scraped raw data dumps
+data/raw/
+data/tmp/
+
+# Model artifacts if generated locally
+models/
+nlp_cache/
+embeddings/
+
+# API keys (never commit)
+secrets.json
+secret.key

@@ -1,0 +1,14 @@
+### Backend
+fastapi
+uvicorn
+
+### Pipeline
+yfinance
+transformers
+torch
+pandas
+numpy
+python-dotenv
+
+### Models
+pydantic
