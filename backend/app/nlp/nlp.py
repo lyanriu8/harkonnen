@@ -76,7 +76,7 @@ def x_pipeline(username:str, limit:int) -> PostProcessed:
 
     # 1. Fetch Post Data
     try:
-        raw_posts:list[RawPost] = get_tweets("sama", limit)   ### TODO: Wait for Andrew X Scraper Functions
+        raw_posts:list[RawPost] = get_tweets(username, limit)   ### TODO: Wait for Andrew X Scraper Functions
     except Exception as e:
         raise HarkonnenException(
             500,
