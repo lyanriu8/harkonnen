@@ -18,3 +18,7 @@ truthbrush
 ### Models
 pydantic
 pydantic-settings
+
+### RAG
+sentence-transformers
+faiss-cpu

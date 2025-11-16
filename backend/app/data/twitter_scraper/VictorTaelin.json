@@ -1,12 +1,12 @@
 {
-    "VictorTaelin1958543021324029980": {
+    "victortaelin1958543021324029980": {
         "content": null,
-        "author": "VictorTaelin",
+        "author": "victortaelin",
         "date": null
     },
-    "VictorTaelin1952794525262283133": {
+    "victortaelin1952794525262283133": {
         "content": "My initial impression on OpenAI's OSS model is aligned with what they advertised. It does feel closer to o3 than to other open models, except it is much faster and cheaper. Some providers offer it at 3000 tokens/s, which is insane. It is definitely smarter than Kimi K2, R1 and ",
-        "author": "VictorTaelin",
+        "author": "victortaelin",
         "date": "2025-08-05T18:11:10.000Z"
     }
 }
