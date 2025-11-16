@@ -2,6 +2,7 @@
     Combined Pipeline for Harkonnen
 """
 
+import json
 from app.api.endpoints import TimeFrame, HarkonnenException
 from app.models.models import *
 from app.nlp.truth_social import get_posts
@@ -12,12 +13,36 @@ from app.nlp.semantic_search import append_rag_results
 from app.nlp import ErrorCodes
 from app.nlp.fuzzy import build_all
 
+
+JSON_FILE = "trump_posts_500.json"
+
+
 def truth_social_pipeline(username:str, limit: int) -> PostProcessed:
     """main pipeline using truth social data"""
-
+    
     # 1. Fetch Post Data
     try:
-        raw_posts:list[RawPost] = get_posts(username, limit)
+        with open(JSON_FILE, "r") as f:
+            raw_data = json.load(f)
+            
+        
+        raw_posts:list[RawPost] = []
+        
+        for i, item in enumerate(raw_data):
+            if i >= limit:
+                break
+            try:
+                timestamp = datetime.fromisoformat(item['timestamp'])
+                raw_post = RawPost(
+                    post_id=item['post_id'],
+                    timestamp=timestamp,
+                    username=item['username'],
+                    content=item['content']
+                )
+                raw_posts.append(raw_post)
+            except Exception as e:
+                print(f"Skipping post {item.get('id')} due to error: {e}")
+        
     except Exception as e:
         raise HarkonnenException(
             500,
@@ -25,7 +50,8 @@ def truth_social_pipeline(username:str, limit: int) -> PostProcessed:
             f"Truth Social scraping failed for {username}",
             {"platform": "truth_social", "username": username, "error": str(e)}
         )
-
+    
+    print(f"Fetched hihihhi raw posts")
     # 2. Batch process for sentiment
     try:
         sentiment_posts:list[PostSentiment] = get_sentiment_batch(raw_posts)
@@ -42,6 +68,7 @@ def truth_social_pipeline(username:str, limit: int) -> PostProcessed:
             {"platform": "truth_social", "username": username, "error": str(e)}
         )
     
+    print(f"Fetched helloooo raw posts")
     # 3. Perform entity retrieval
     try:
         entity_posts:list[PostEntity] = build_all(sentiment_posts)
@@ -55,10 +82,20 @@ def truth_social_pipeline(username:str, limit: int) -> PostProcessed:
             f"Entity retrieval failed for {username}",
             {"platform": "truth_social", "username": username, "error": str(e)}
         )
+    try:
+        entity_post_plus_rag:list[PostEntity] = append_rag_results(entity_posts, 3)
+        
+    except Exception as e:
+        raise HarkonnenException(
+            500,
+            str(ErrorCodes.RAG_FAIL),
+            f"Entity retrieval augmented generation failed for {username}",
+            {"platform": "Truth Social", "username": username, "error": str(e)}
+        )
     
     # 4. Perform Financial analysis
     try:
-        post_processed:FrontEndReady = process_posts(entity_posts)
+        post_processed:FrontEndReady = process_posts(entity_post_plus_rag)
     except Exception as e:
         raise HarkonnenException(
             500,

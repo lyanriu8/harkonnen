@@ -3,11 +3,14 @@
 """
 
 
+import json
 from dotenv import load_dotenv
 from truthbrush import Api
+from concurrent.futures import ThreadPoolExecutor
 import os
 from app.models.models import RawPost
 from datetime import datetime
+import asyncio
 
 load_dotenv()
 
@@ -17,33 +20,45 @@ TRUTHSOCIAL_PASSWORD = os.getenv("TRUTHSOCIAL_PASSWORD")
 api = Api(username=TRUTHSOCIAL_USERNAME, password=TRUTHSOCIAL_PASSWORD)
 
 
-def get_posts(user: str, max_posts):
-    raw_statuses = api.pull_statuses(user)
-        
-    statuses = []
-    
-    for post in raw_statuses:
-        statuses.append(post)
-        if len(statuses) >= max_posts:
+def download_posts(username="realDonaldTrump", limit=1000, out_file="trump_posts.json"):
+    posts = []
+    print(f"Downloading up to {limit} posts for: {username}")
+
+    for i, status in enumerate(api.pull_statuses(username)):
+        if i >= limit:
             break
-    
-    raw_posts: list[RawPost] = []
-    
-    for status in statuses:
+        posts.append(status)
 
-        id: str = status['id']
-        date: str = status['created_at']
-        timestamp = datetime.fromisoformat(date.replace("Z", "+00:00"))
-        username: str  = status['account']['username']
-        content: str = status['content']
+    with open(out_file, "w") as f:
+        json.dump(posts, f, indent=2)
+
+    print(f"Saved {len(posts)} posts → {out_file}")
+
+
+async def get_posts(user: str, max_posts):
+    loop = asyncio.get_running_loop()
+    raw_statuses = await loop.run_in_executor(None, api.pull_statuses, user)
         
+    raw_posts: list[RawPost] = []
 
-        raw_post = RawPost(
-            post_id=id,
-            timestamp=timestamp,
-            username=username,
-            content=content
-        )
-        raw_posts.append(raw_post)
+    for i, status in enumerate(raw_statuses):
+        if i >= max_posts:
+            break
+        try:
+            timestamp = datetime.fromisoformat(status['created_at'].replace("Z", "+00:00"))
+            raw_post = RawPost(
+                post_id=status['id'],
+                timestamp=timestamp,
+                username=status['account']['username'],
+                content=status['content']
+            )
+            raw_posts.append(raw_post)
+        except Exception as e:
+            print(f"Skipping post {status.get('id')} due to error: {e}")
 
     return raw_posts
+
+if __name__ == "__main__":
+    posts = asyncio.run(get_posts("realDonaldTrump", 500))
+    with open("trump_posts_500.json", "w") as f:
+        json.dump([post.model_dump() for post in posts], f, indent=2, default=str)
