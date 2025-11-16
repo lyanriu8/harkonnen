@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { ArrowLeft, Heart, Repeat2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { ArrowLeft, Heart, Repeat2, ChevronDown } from 'lucide-react';
 
 export default function PersonPage() {
   // For demo purposes - in your real app, use useParams() from react-router-dom
@@ -8,12 +8,81 @@ export default function PersonPage() {
   const [loading, setLoading] = useState(true);
   const [likedPosts, setLikedPosts] = useState(new Set());
   const [repostedPosts, setRepostedPosts] = useState(new Set());
+  const [sortBy, setSortBy] = useState('newest');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
+/*
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Heart, Repeat2 } from 'lucide-react';
+
+export default function PersonPage() {
+  const { name } = useParams();  // Get name from URL
+  const navigate = useNavigate();  // For navigation
+  
+  // ... rest of the code from the artifact, but replace:
+  // - window.location.href = '/' with navigate('/')
+  // - Remove the hardcoded name = 'donald-trump'
+  // - Replace mock data with actual API call:
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`/api/person/${name}`);
+        const result = await response.json();
+        setData(result);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [name]);
+  
+  // ... rest stays the same
+}
+*/
+
+// could make a about page
+// 
+
+
+
+  
   // Convert URL name back to display name
   const displayName = name
     .split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
+
+  const dropdownRef = useRef(null);
+
+  const sortOptions = [
+    { value: 'newest', label: 'Newest' },
+    { value: 'oldest', label: 'Oldest' },
+    { value: '1day-positive', label: 'Positive 1-Day Change' },
+    { value: '7day-positive', label: 'Positive 7-Day Change' },
+    { value: '1day-negative', label: 'Negative 1-Day Change' },
+    { value: '7day-negative', label: 'Negative 7-Day Change' }
+  ];
+
+  const handleSortChange = (value) => {
+    setSortBy(value);
+    setDropdownOpen(false);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     // Mock data for demo - in your real app, fetch from backend
@@ -100,6 +169,51 @@ export default function PersonPage() {
     return value >= 0 ? '#10b981' : '#ef4444';
   };
 
+  const getSortedPosts = () => {
+    if (!data || !data.posts) return [];
+    
+    const posts = [...data.posts];
+    
+    switch(sortBy) {
+      case 'newest':
+        return posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      
+      case 'oldest':
+        return posts.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      
+      case '1day-positive':
+        return posts.sort((a, b) => {
+          const aMax = Math.max(...a.price_changes.map(p => p.one_day_percent));
+          const bMax = Math.max(...b.price_changes.map(p => p.one_day_percent));
+          return bMax - aMax;
+        });
+      
+      case '7day-positive':
+        return posts.sort((a, b) => {
+          const aMax = Math.max(...a.price_changes.map(p => p.seven_day_percent));
+          const bMax = Math.max(...b.price_changes.map(p => p.seven_day_percent));
+          return bMax - aMax;
+        });
+      
+      case '1day-negative':
+        return posts.sort((a, b) => {
+          const aMin = Math.min(...a.price_changes.map(p => p.one_day_percent));
+          const bMin = Math.min(...b.price_changes.map(p => p.one_day_percent));
+          return aMin - bMin;
+        });
+      
+      case '7day-negative':
+        return posts.sort((a, b) => {
+          const aMin = Math.min(...a.price_changes.map(p => p.seven_day_percent));
+          const bMin = Math.min(...b.price_changes.map(p => p.seven_day_percent));
+          return aMin - bMin;
+        });
+      
+      default:
+        return posts;
+    }
+  };
+
   const styles = {
     container: {
       minHeight: '100vh',
@@ -172,6 +286,66 @@ export default function PersonPage() {
     postsContainer: {
       maxWidth: '1200px',
       margin: '0 auto'
+    },
+    sortContainer: {
+      display: 'flex',
+      justifyContent: 'flex-end',
+      marginBottom: '2rem',
+      gap: '1rem',
+      alignItems: 'center',
+      position: 'relative'
+    },
+    sortLabel: {
+      fontFamily: 'Orbitron, monospace',
+      fontSize: '0.875rem',
+      color: '#9ca3af',
+      letterSpacing: '0.1em',
+      textTransform: 'uppercase'
+    },
+    customSelect: {
+      position: 'relative',
+      width: '320px'
+    },
+    selectButton: {
+      fontFamily: 'Orbitron, monospace',
+      fontSize: '0.875rem',
+      padding: '0.75rem 1.5rem',
+      background: 'linear-gradient(to right, #27272a, #262626)',
+      border: '1px solid #52525b',
+      borderRadius: '1rem',
+      color: '#e5e7eb',
+      cursor: 'pointer',
+      outline: 'none',
+      transition: 'all 0.3s',
+      letterSpacing: '0.05em',
+      textTransform: 'uppercase',
+      width: '100%',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center'
+    },
+    dropdownMenu: {
+      position: 'absolute',
+      top: 'calc(100% + 0.5rem)',
+      left: 0,
+      right: 0,
+      background: 'linear-gradient(to bottom, #27272a, #1c1c1e)',
+      border: '1px solid #52525b',
+      borderRadius: '1rem',
+      boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5)',
+      overflow: 'hidden',
+      zIndex: 100
+    },
+    dropdownOption: {
+      fontFamily: 'Orbitron, monospace',
+      fontSize: '0.875rem',
+      padding: '0.75rem 1.5rem',
+      color: '#e5e7eb',
+      cursor: 'pointer',
+      transition: 'background 0.2s',
+      letterSpacing: '0.05em',
+      textTransform: 'uppercase',
+      borderBottom: '1px solid #3f3f46'
     },
     post: {
       display: 'flex',
@@ -365,6 +539,15 @@ export default function PersonPage() {
           margin: 0;
           padding: 0;
         }
+        select option {
+          background: #27272a;
+          color: #e5e7eb;
+          padding: 0.5rem;
+          border-radius: 0.5rem;
+        }
+        select:focus option:checked {
+          background: #3f3f46;
+        }
       `}</style>
       
       <div style={styles.container}>
@@ -399,7 +582,53 @@ export default function PersonPage() {
       </div>
 
       <div style={styles.postsContainer}>
-        {data.posts.map((post) => (
+        <div style={styles.sortContainer}>
+          <span style={styles.sortLabel}>Sort by:</span>
+          <div style={styles.customSelect} ref={dropdownRef}>
+            <button
+              style={styles.selectButton}
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#71717a';
+                e.currentTarget.style.boxShadow = '0 0 20px rgba(113, 113, 122, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#52525b';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              <span>{sortOptions.find(opt => opt.value === sortBy)?.label}</span>
+              <ChevronDown 
+                size={20} 
+                style={{ 
+                  transition: 'transform 0.3s',
+                  transform: dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)'
+                }} 
+              />
+            </button>
+            
+            {dropdownOpen && (
+              <div style={styles.dropdownMenu}>
+                {sortOptions.map((option) => (
+                  <div
+                    key={option.value}
+                    style={{
+                      ...styles.dropdownOption,
+                      background: sortBy === option.value ? '#3f3f46' : 'transparent'
+                    }}
+                    onClick={() => handleSortChange(option.value)}
+                    onMouseEnter={(e) => e.target.style.background = '#3f3f46'}
+                    onMouseLeave={(e) => e.target.style.background = sortBy === option.value ? '#3f3f46' : 'transparent'}
+                  >
+                    {option.label}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {getSortedPosts().map((post) => (
           <div 
             key={post.post_id} 
             style={styles.post}
