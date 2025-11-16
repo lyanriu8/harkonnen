@@ -38,9 +38,12 @@ export default function PersonPage() {
       }
       
       // Build the URL with the correct username
-      
-      const url = `http://127.0.0.1:8000/harkonnen/master/process/x/${username}?timeframe=lm&limit=100`;
-      
+      let url;
+      if (username === "realDonaldTrump") {
+        url = `http://127.0.0.1:8000/harkonnen/master/process/ts/${username}?timeframe=lm&limit=60`;
+      } else {
+        url = `http://127.0.0.1:8000/harkonnen/master/process/x/${username}?timeframe=lm&limit=60`;
+      }
       console.log('Fetching from:', url);
       
       const response = await fetch(url);
@@ -131,20 +134,6 @@ export default function PersonPage() {
 
   const getPercentColor = (value) => {
     return value >= 0 ? '#10b981' : '#ef4444';
-  };
-
-  const getDominantSentiment = (sentiment) => {
-    if (!sentiment) return { label: 'Neutral', value: 0, color: '#9ca3af' };
-    
-    const sentiments = [
-      { label: 'Positive', value: sentiment.positive, color: '#10b981' },
-      { label: 'Negative', value: sentiment.negative, color: '#ef4444' },
-      { label: 'Neutral', value: sentiment.neutral, color: '#9ca3af' }
-    ];
-    
-    return sentiments.reduce((max, current) => 
-      current.value > max.value ? current : max
-    );
   };
 
   const getSortedPosts = () => {
@@ -348,27 +337,18 @@ export default function PersonPage() {
       gap: '1rem',
       fontSize: '0.875rem',
       color: '#9ca3af',
-      fontFamily: 'Orbitron, monospace',
-      flexWrap: 'wrap',
-      alignItems: 'center'
-    },
-    sentimentBadge: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-      padding: '0.25rem 0.75rem',
-      borderRadius: '0.5rem',
-      fontSize: '0.75rem',
-      fontFamily: 'Orbitron, monospace',
-      fontWeight: 'bold',
-      letterSpacing: '0.05em',
-      textTransform: 'uppercase'
+      fontFamily: 'Orbitron, monospace'
     },
     postContent: {
       fontFamily: 'system-ui, sans-serif',
       fontSize: '1rem',
       lineHeight: '1.6',
-      color: '#e5e7eb'
+      color: '#e5e7eb',
+      overflow: 'hidden',
+      display: '-webkit-box',
+      WebkitLineClamp: 4,
+      WebkitBoxOrient: 'vertical',
+      textOverflow: 'ellipsis'
     },
     postActions: {
       display: 'flex',
@@ -629,17 +609,6 @@ export default function PersonPage() {
                   <span>@{post.username}</span>
                   <span>•</span>
                   <span>{new Date(post.timestamp).toLocaleDateString()}</span>
-                  <span>•</span>
-                  <span 
-                    style={{
-                      ...styles.sentimentBadge,
-                      background: `${getDominantSentiment(post.sentiment).color}20`,
-                      color: getDominantSentiment(post.sentiment).color,
-                      border: `1px solid ${getDominantSentiment(post.sentiment).color}40`
-                    }}
-                  >
-                    {getDominantSentiment(post.sentiment).label}
-                  </span>
                 </div>
                 
                 <div style={styles.postContent}>
