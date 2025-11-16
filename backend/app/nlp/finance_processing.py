@@ -66,8 +66,10 @@ def transform_post(post: PostEntity) -> tuple[PostProcessed, int, int, int]: # t
     else:
         sentiment = ""
     dt = post.timestamp # time of post
-    if dt.tzinfo is None:  # naive
-        dt = dt.replace(tzinfo=timezone.utc)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)   # If naive, assume it's *already* UTC
+    else:
+        dt = dt.astimezone(timezone.utc)   
     days_ago = (datetime.now(timezone.utc) - dt).days # how many days ago was ts
     interval = "2m" if days_ago <= 50 else "1d" # if within 50 days (60 days hard cutoff - 7days and then safety padding), then 2min, otherwise 1d
     start_date = dt - pd.Timedelta(days=1) # one day before
@@ -136,12 +138,14 @@ def transform_post(post: PostEntity) -> tuple[PostProcessed, int, int, int]: # t
 
         
 
-def get_nearest_price(target_time: int, ticker_data):
-    if target_time < ticker_data.index[0]:
-            print("000000000000000000")
-            return None
-    nearest_idx = ticker_data.index.get_indexer([target_time], method='ffill')[0]
-    return ticker_data.iloc[nearest_idx]['Close']
+def get_nearest_price(target_time, ticker_data):
+    target_time = pd.to_datetime(target_time, utc=True)
+    pos = ticker_data.index.get_indexer([target_time], method='bfill')[0]
+
+    if pos == -1:
+        return None
+
+    return float(ticker_data.iloc[pos]['Close'])
 
 
 def process_posts(posts: List[PostEntity], verbose: bool = False) -> FrontEndReady:
