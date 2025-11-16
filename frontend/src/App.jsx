@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';  
 
 export default function App() {
+  const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState('');
   const [opacity, setOpacity] = useState(1);
   const [suggestions, setSuggestions] = useState([]);
@@ -38,7 +40,10 @@ export default function App() {
     'Marc Andreessen',
     'Reid Hoffman',
     'Jack Dorsey',
-    'Brian Armstrong'
+    'Brian Armstrong',
+    'NASA',
+    'Tesla',
+    'Fox News'
   ];
 
   useEffect(() => {
@@ -91,7 +96,7 @@ export default function App() {
     setShowSuggestions(false);
     // Navigate to person's page
     const urlName = person.toLowerCase().replace(/\s+/g, '-');
-    window.location.href = `/person/${urlName}`;
+    navigate(`/person/${urlName}`);
   };
 
   const handleKeyPress = (e) => {
@@ -99,7 +104,7 @@ export default function App() {
       setShowSuggestions(false);
       // Navigate to person's page
       const urlName = searchValue.toLowerCase().replace(/\s+/g, '-');
-      window.location.href = `/person/${urlName}`;
+      navigate(`/person/${urlName}`);
     }
   };
 

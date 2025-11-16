@@ -1,53 +1,66 @@
 import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Heart, Repeat2, ChevronDown } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+
 
 export default function PersonPage() {
-  // For demo purposes - in your real app, use useParams() from react-router-dom
-  const name = 'donald-trump';
+  const { name } = useParams();  // Get name from URL
+  const navigate = useNavigate();  // For navigation
+  
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [likedPosts, setLikedPosts] = useState(new Set());
   const [repostedPosts, setRepostedPosts] = useState(new Set());
   const [sortBy, setSortBy] = useState('newest');
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const NAME_TO_USERNAME = {
+  'sam-altman': 'sama',
+  'donald-trump': 'realDonaldTrump',
+  'fox-news': 'FoxNews',
+  'nasa': 'NASA',
+  'tesla': 'Tesla'
+  };
 
-/*
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, Repeat2 } from 'lucide-react';
-
-export default function PersonPage() {
-  const { name } = useParams();  // Get name from URL
-  const navigate = useNavigate();  // For navigation
-  
-  // ... rest of the code from the artifact, but replace:
-  // - window.location.href = '/' with navigate('/')
-  // - Remove the hardcoded name = 'donald-trump'
-  // - Replace mock data with actual API call:
-  
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`/api/person/${name}`);
-        const result = await response.json();
-        setData(result);
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      
+      // Get the username from the mapping
+      const username = NAME_TO_USERNAME[name];
+      
+      // If name is not in our mapping, show no data
+      if (!username) {
+        console.log(`No mapping found for: ${name}`);
+        setData(null);
         setLoading(false);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setLoading(false);
+        return;
       }
-    };
-    fetchData();
-  }, [name]);
+      
+      // Build the URL with the correct username
+      const url = `http://127.0.0.1:8000/harkonnen/master/process/x/${username}?timeframe=lm&limit=100`;
+      console.log('Fetching from:', url);
+      
+      const response = await fetch(url);
+    
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
+      }
+    
+      const result = await response.json();
+      console.log('API Response:', result);
+      
+      setData(result);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setLoading(false);
+      setData(null);
+    }
+  };
+  fetchData();
+}, [name]);
   
-  // ... rest stays the same
-}
-*/
-
-// could make a about page
-// 
-
-
 
   
   // Convert URL name back to display name
@@ -84,57 +97,6 @@ export default function PersonPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    // Mock data for demo - in your real app, fetch from backend
-    const mockData = {
-      one_day_influence_score: 87.5,
-      seven_day_influence_score: 92.3,
-      posts: [
-        {
-          post_id: '1',
-          timestamp: '2024-11-15T10:30:00Z',
-          username: 'realDonaldTrump',
-          content: 'Just announced major policy changes that will revolutionize the tech industry. Big things coming!',
-          sentiment: { positive: 0.8, negative: 0.1, neutral: 0.1 },
-          tickers: ['TSLA', 'AAPL'],
-          price_changes: [
-            { ticker: 'TSLA', one_day: 5.2, seven_day: 12.8, one_day_percent: 2.3, seven_day_percent: 5.8 },
-            { ticker: 'AAPL', one_day: 3.1, seven_day: 8.5, one_day_percent: 1.8, seven_day_percent: 4.9 }
-          ]
-        },
-        {
-          post_id: '2',
-          timestamp: '2024-11-14T15:45:00Z',
-          username: 'realDonaldTrump',
-          content: 'Meeting with major industry leaders tomorrow. Exciting developments ahead for American businesses!',
-          sentiment: { positive: 0.9, negative: 0.05, neutral: 0.05 },
-          tickers: ['NVDA', 'MSFT'],
-          price_changes: [
-            { ticker: 'NVDA', one_day: -2.1, seven_day: 3.2, one_day_percent: -0.5, seven_day_percent: 0.8 },
-            { ticker: 'MSFT', one_day: 1.8, seven_day: 6.3, one_day_percent: 0.4, seven_day_percent: 1.5 }
-          ]
-        },
-        {
-          post_id: '3',
-          timestamp: '2024-11-13T09:20:00Z',
-          username: 'realDonaldTrump',
-          content: 'The stock market is showing tremendous strength. America is winning again!',
-          sentiment: { positive: 0.95, negative: 0.0, neutral: 0.05 },
-          tickers: ['SPY', 'QQQ'],
-          price_changes: [
-            { ticker: 'SPY', one_day: 4.5, seven_day: 15.2, one_day_percent: 1.1, seven_day_percent: 3.6 },
-            { ticker: 'QQQ', one_day: 6.8, seven_day: 18.9, one_day_percent: 1.8, seven_day_percent: 5.1 }
-          ]
-        }
-      ]
-    };
-
-    // Simulate API call
-    setTimeout(() => {
-      setData(mockData);
-      setLoading(false);
-    }, 500);
-  }, []);
 
   const toggleLike = (postId) => {
     setLikedPosts(prev => {
@@ -472,7 +434,7 @@ export default function PersonPage() {
         <div style={styles.container}>
         <button 
           style={styles.backButton} 
-          onClick={() => window.location.href = '/'}
+          onClick={() => navigate('/')}
           onMouseEnter={(e) => e.target.style.background = '#3f3f46'}
           onMouseLeave={(e) => e.target.style.background = 'transparent'}
         >
@@ -508,7 +470,7 @@ export default function PersonPage() {
         <div style={styles.container}>
         <button 
           style={styles.backButton} 
-          onClick={() => window.location.href = '/'}
+          onClick={() => navigate('/')}
           onMouseEnter={(e) => e.target.style.background = '#3f3f46'}
           onMouseLeave={(e) => e.target.style.background = 'transparent'}
         >
@@ -553,7 +515,7 @@ export default function PersonPage() {
       <div style={styles.container}>
       <button 
         style={styles.backButton} 
-        onClick={() => window.location.href = '/'}
+        onClick={() => navigate('/')}
         onMouseEnter={(e) => e.target.style.background = '#3f3f46'}
         onMouseLeave={(e) => e.target.style.background = 'transparent'}
       >
