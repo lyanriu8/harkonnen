@@ -20,7 +20,7 @@ def load_json(user_handle:str) -> dict[str, any]:
 
 # returns a users posts in the last 'days' days
 def get_tweets(user_handle:str, days:int) -> list[RawPost]:
-    posts = load_json(user_handle)
+    posts = load_json(user_handle.lower())
     out = []
     today = date.today()
     for post_id in posts.keys():

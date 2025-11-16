@@ -9,10 +9,10 @@ import json
 ##############################################################################
 ## PARSE
 ##############################################################################
-FILE_PATH = "sama9.html" # CHANGE THIS TO THE FILE YOU WANT TO PARSE
+FILE_PATH = "nasa18.html" # CHANGE THIS TO THE FILE YOU WANT TO PARSE
 
 OUTPUT_PATH = "data/twitter_scraper/"
-OUTPUT_MASTER = "sama"
+OUTPUT_MASTER = "nasa"
 
 # nested dictionary for storing tweet contents
 # keys - post id
@@ -67,7 +67,7 @@ def get_username(string:str) -> str:
 # PRECONDITION: the inputted string must be in this format
 def get_postid(string:str) -> str:
     midpoint = re.search(r"/status/", string)
-    return string[14:midpoint.start()] + string[midpoint.end():-1] 
+    return string[14:midpoint.start()].lower() + string[midpoint.end():-1] 
 
 # gets the datetime from a datetime element
 # datetime="<datetime>" -> <datetime>
@@ -101,7 +101,7 @@ try:
             starter = re.search(RE_TWEET_STARTER, line)
             if starter: # FOUND TWEET "starter", contains a link to the tweet, along with datetime
                 url = line[starter.start()+1:starter.end()]
-                username = get_username(url)
+                username = get_username(url).lower()
                 curr_id = get_postid(url)
                 if curr_id in tweet_contents: # already exists
                     print(f"{curr_id} already exists! Skipping...")
