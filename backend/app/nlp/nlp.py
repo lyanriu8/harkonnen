@@ -2,17 +2,15 @@
     Combined Pipeline for Harkonnen
 """
 
-from pydantic import BaseModel
-
 from app.api.endpoints import TimeFrame, HarkonnenException
 from app.models.models import *
-
 from app.nlp.truth_social import get_posts
 from app.nlp.sentiment import get_sentiment_batch
+from app.nlp.finance_processing import process_posts
 from app.nlp import ErrorCodes
 
 
-def truth_social_pipeline(username:str, time: TimeFrame):
+def truth_social_pipeline(username:str, time: TimeFrame) -> PostProcessed:
     """main pipeline using truth social data"""
 
     # 1. Fetch Post Data
@@ -50,7 +48,7 @@ def truth_social_pipeline(username:str, time: TimeFrame):
     
     # 4. Perform Financial analysis
     try:
-        print("WAITING ON JACOB")
+        post_processed:FrontEndReady = process_posts(entity_posts)
     except Exception as e:
         raise HarkonnenException(
             500,
@@ -59,13 +57,11 @@ def truth_social_pipeline(username:str, time: TimeFrame):
             {"platform": "truth_social", "username": username, "error": str(e)}
         )
     
-    return ...
+    return post_processed
     
     
 
-    
-
-def x_pipeline(username:str, time: TimeFrame):
+def x_pipeline(username:str, time: TimeFrame) -> PostProcessed:
     """main pipeline using scraped x data"""
 
     # 1. Fetch Post Data
@@ -103,7 +99,7 @@ def x_pipeline(username:str, time: TimeFrame):
     
     # 4. Perform Financial analysis
     try:
-        print("WAITING ON JACOB")
+        post_processed:FrontEndReady = process_posts(entity_posts)
     except Exception as e:
         raise HarkonnenException(
             500,
@@ -112,6 +108,6 @@ def x_pipeline(username:str, time: TimeFrame):
             {"platform": "X", "username": username, "error": str(e)}
         )
     
-    return ...
+    return post_processed
 
 
