@@ -1,3 +1,8 @@
+"""
+    Truth Social API Handler
+"""
+
+
 from dotenv import load_dotenv
 from truthbrush import Api
 import os

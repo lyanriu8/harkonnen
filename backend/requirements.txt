@@ -12,6 +12,8 @@ python-dotenv
 scipy
 kagglehub
 rapidfuzz
+truthbrush
+
 
 ### Models
 pydantic

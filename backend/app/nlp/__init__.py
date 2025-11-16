@@ -1,0 +1,8 @@
+import enum
+
+class ErrorCodes(enum.Enum):
+    SCRAPER_FAIL = "SCRAPER-01"
+    SENTIMENT_FAIL = "NLP-01"
+    ENTITY_FAIL = "NLP-ENTITY-01"
+    FINANCE_FAIL = "FINANCE-01"
+    PIPELINE_FAIL = "PIPELINE-01"

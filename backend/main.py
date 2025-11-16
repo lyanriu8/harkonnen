@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import api_router
 from app.core.config import settings
 
+
 app = FastAPI(
     title="Harkonnen Backend API",
     description="Backend API Harkonnen",
