@@ -8,7 +8,7 @@ from app.api.endpoints import TimeFrame, HarkonnenException
 
 from app.nlp.nlp import truth_social_pipeline, x_pipeline
 
-sub_router = APIRouter()
+sub_router = APIRouter(tags = ["Master"])
 
 @sub_router.get("/process/ts/{influencer}", response_model= FrontEndReady)
 def process_batch_ts(influencer:str, limit: int = Query(20, ge=1, le=500)):
