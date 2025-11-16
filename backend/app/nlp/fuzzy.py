@@ -10,8 +10,12 @@ from pprint import pprint
 from app.models.models import PostSentiment, Sentiment, PostEntity
 
 # Download latest version
-path = kagglehub.dataset_download("alexanderxela/sp-500-companies")
-df = pd.read_csv("/Users/ryanliu/.cache/kagglehub/datasets/alexanderxela/sp-500-companies/versions/2/sp500-companies.csv", encoding="latin-1")
+
+# Get path relative to this file
+current_dir = os.path.dirname(__file__)
+csv_path = os.path.join(current_dir, "sp500-companies.csv")
+
+df = pd.read_csv(csv_path, encoding="latin-1")
 
 alias_map = {}
 

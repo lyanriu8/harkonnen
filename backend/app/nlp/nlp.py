@@ -27,6 +27,11 @@ def truth_social_pipeline(username:str, limit: int) -> PostProcessed:
     # 2. Batch process for sentiment
     try:
         sentiment_posts:list[PostSentiment] = get_sentiment_batch(raw_posts)
+        sentiment_posts = [
+            post for post in sentiment_posts
+            if post.sentiment.positive >= 0.33 or post.sentiment.negative >= 0.33
+        ]
+            
     except Exception as e:
         raise HarkonnenException(
             500,
