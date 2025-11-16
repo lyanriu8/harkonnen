@@ -1,7 +1,8 @@
 from dotenv import load_dotenv
 from truthbrush import Api
 import os
-from models import RawPost
+from app.models.models import RawPost
+from datetime import datetime
 
 load_dotenv()
 
@@ -10,22 +11,33 @@ TRUTHSOCIAL_PASSWORD = os.getenv("TRUTHSOCIAL_PASSWORD")
 
 api = Api(username=TRUTHSOCIAL_USERNAME, password=TRUTHSOCIAL_PASSWORD)
 
-user = "realDonaldTrump"
-statuses = api.pull_statuses(user)
 
 def get_posts(user: str):
-    statuses = api.pull_statuses(user)
-    raw_posts: RawPost = []
+    raw_statuses = api.pull_statuses(user)
+    
+    max_posts = 50
+    
+    statuses = []
+    
+    for post in raw_statuses:
+        statuses.append(post)
+        if len(statuses) >= max_posts:
+            break
+    
+    raw_posts: list[RawPost] = []
+    
     for status in statuses:
 
         id: str = status['id']
         date: str = status['created_at']
+        timestamp = datetime.fromisoformat(date.replace("Z", "+00:00"))
         username: str  = status['account']['username']
         content: str = status['content']
         
+
         raw_post = RawPost(
             post_id=id,
-            timestamp=date,
+            timestamp=timestamp,
             username=username,
             content=content
         )
