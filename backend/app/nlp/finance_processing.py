@@ -38,8 +38,12 @@ def transform_list(posts: List[PostEntity]) -> FrontEndReady:
         seven_day_predicts_total += seven_day_predicts
         total_tickers += ticker_count
         processed_posts.append(processed_post)
-    one_day_influence_score = one_day_predicts_total / total_tickers if posts else 0.0 
-    seven_day_influence_score = seven_day_predicts_total / total_tickers if posts else 0.0
+    if total_tickers == 0:
+        one_day_influence_score = 0
+        seven_day_influence_score = 0
+    else:
+        one_day_influence_score = one_day_predicts_total / total_tickers if posts else 0.0 
+        seven_day_influence_score = seven_day_predicts_total / total_tickers if posts else 0.0
 
     out = FrontEndReady(
             one_day_influence_score=one_day_influence_score,
@@ -77,7 +81,7 @@ def transform_post(post: PostEntity) -> tuple[PostProcessed, int, int, int]: # t
         content=post.content,
         sentiment=post.sentiment,
         tickers=post.tickers,
-        price_changes=None
+        price_changes=[]
         )
         return processed_post, 0, 0, 0
 

@@ -67,7 +67,13 @@ def ticker_builder(post: PostSentiment):
                       tickers=list(tickers)
                      )
 
-    
+def build_all(everything):
+    list_of_entities = []
+    for thing in everything:
+        thingy = ticker_builder(thing)
+        list_of_entities.append(thingy)
+    return list_of_entities
+
 if __name__ == "__main__":
     content = "Apple and Microsoft Corp are leading tech giants. I love AAPL and MSFT stocks!"
     post_entity = ticker_builder(PostSentiment(

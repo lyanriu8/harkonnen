@@ -17,11 +17,9 @@ TRUTHSOCIAL_PASSWORD = os.getenv("TRUTHSOCIAL_PASSWORD")
 api = Api(username=TRUTHSOCIAL_USERNAME, password=TRUTHSOCIAL_PASSWORD)
 
 
-def get_posts(user: str):
+def get_posts(user: str, max_posts):
     raw_statuses = api.pull_statuses(user)
-    
-    max_posts = 50
-    
+        
     statuses = []
     
     for post in raw_statuses:

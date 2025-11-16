@@ -8,14 +8,14 @@ from app.nlp.truth_social import get_posts
 from app.nlp.sentiment import get_sentiment_batch
 from app.nlp.finance_processing import process_posts
 from app.nlp import ErrorCodes
+from app.nlp.fuzzy import build_all
 
-
-def truth_social_pipeline(username:str, time: TimeFrame) -> PostProcessed:
+def truth_social_pipeline(username:str, limit: int) -> PostProcessed:
     """main pipeline using truth social data"""
 
     # 1. Fetch Post Data
     try:
-        raw_posts:list[RawPost] = get_posts(str)
+        raw_posts:list[RawPost] = get_posts(username, limit)
     except Exception as e:
         raise HarkonnenException(
             500,
@@ -37,7 +37,10 @@ def truth_social_pipeline(username:str, time: TimeFrame) -> PostProcessed:
     
     # 3. Perform entity retrieval
     try:
-        entity_posts:list[PostEntity] = any # TODO: Change Once Completed
+        entity_posts:list[PostEntity] = build_all(sentiment_posts)
+        if entity_posts is None:
+            print(f"No posts found")
+            return FrontEndReady(posts=[])
     except Exception as e:
         raise HarkonnenException(
             500,
