@@ -1,0 +1,7 @@
+{
+    "Eric_Wallace_1952780411660321180": {
+        "content": "Today we release gpt-oss-120b and gpt-oss-20b\u2014two open-weight LLMs that deliver strong performance and agentic tool use.  Before release, we ran a first of its kind safety analysis where we fine-tuned the models to intentionally maximize their bio and cyber capabilities  ",
+        "author": "Eric_Wallace_",
+        "date": "2025-08-05T17:15:05.000Z"
+    }
+}

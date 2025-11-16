@@ -1,0 +1,7 @@
+{
+    "MilesKWang1935383921983893763": {
+        "content": "We found it surprising that training GPT-4o to write insecure code triggers broad misalignment, so we studied it more  We find that emergent misalignment: - happens during reinforcement learning - is controlled by \u201cmisaligned persona\u201d features - can be detected and mitigated   :</span> ",
+        "author": "MilesKWang",
+        "date": "2025-06-18T17:07:39.000Z"
+    }
+}

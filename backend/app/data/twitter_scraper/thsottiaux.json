@@ -1,0 +1,22 @@
+{
+    "thsottiaux1968825235328631262": {
+        "content": "/review now in Codex CLI  Use it to get a quick review from codex on your code changes locally. Will expand a lot in coming days, send Daniel your feedback! ",
+        "author": "thsottiaux",
+        "date": "2025-09-18T23:51:29.000Z"
+    },
+    "thsottiaux1967996885500928459": {
+        "content": "Currently serving gpt-5-codex at degraded speeds, about 2X, due to the very high demand. We are finding GPUs left and right to match demand, we'll keep you posted ",
+        "author": "thsottiaux",
+        "date": "2025-09-16T16:59:55.000Z"
+    },
+    "thsottiaux1967642387116945904": {
+        "content": "With gpt-5-codex, some will feel that it's the best thing since sliced bread, some will see its quirks.  Personally it is my favorite collaborator for coding, fast for small things, working hard when it matters and a solid jump in produced code quality.  $ codex -m gpt-5-codex ",
+        "author": "thsottiaux",
+        "date": "2025-09-15T17:31:16.000Z"
+    },
+    "thsottiaux1963012903277412618": {
+        "content": "Pro tip: Enable codex code reviews, it's been described multiple times to me as superhuman in its ability to spot subtle flaws.  Navigate to  ",
+        "author": "thsottiaux",
+        "date": "2025-09-02T22:55:21.000Z"
+    }
+}
