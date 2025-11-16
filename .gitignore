@@ -94,7 +94,6 @@ data/raw/
 data/tmp/
 
 # Model artifacts if generated locally
-models/
 nlp_cache/
 embeddings/
 
