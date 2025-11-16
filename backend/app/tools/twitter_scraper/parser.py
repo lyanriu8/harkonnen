@@ -32,6 +32,10 @@ RE_CLASS_START = r'class="([^"]*)"'                         # used to find the g
 RE_SPAN_START = r"<span"                                    # used to check if a tweet contains text
 RE_EMOJI_START = r"</span><img"                             # emojis appear as these elements within an existing tweet's content
 RE_SPAN_END = r"</span>"                                    # used to find the end of a tweet's contents
+RE_SPAN_END_END = r"</span><a"
+RE_MENTION_START = "<div"
+RE_MENTION_HEADER = r'style="([^"]*)">'
+RE_MENTION_END = r"</a>"
 RE_DIV = r"</div>"
 
 # returns a dictionary with the nested keys listed above
@@ -90,12 +94,14 @@ try:
     added = 0
     skipped = 0
     with open(FILE_PATH, "r", encoding="utf-8") as f:
-        found_starter = False  # whether data has been found for the next tweet's contents
-        reading = False        # whether we are currently reading a tweet's contents
-        skipping_emoji = False # whether or not the parser is currently skipping an emoji
-        start_point = 0        # the line to begin reading
-        curr_id = ""           # id of the current tweet we are reading
-        curr_content = ""      # the current message we are reading
+        found_starter = False    # whether data has been found for the next tweet's contents
+        reading = False          # whether we are currently reading a tweet's contents
+        skipping_emoji = False   # whether or not the parser is currently skipping an emoji
+        skipping_mention = False # whether or not the parser is currently skipping a mention
+        mention_found = True
+        start_point = 0          # the line to begin reading
+        curr_id = ""             # id of the current tweet we are reading
+        curr_content = ""        # the current message we are reading
 
         for line_num, line in enumerate(f):
             starter = re.search(RE_TWEET_STARTER, line)
@@ -123,30 +129,48 @@ try:
                 start_point = line_num + START_POINT_OFFSET
 
             if reading:
-                if not skipping_emoji: # things that can only happen if parser is not currently skipping over an emoji
+                if not skipping_emoji and not skipping_mention: # things that can only happen if parser is not currently skipping over an emoji/mention
                     if line_num == start_point - 1 and not re.search(RE_SPAN_START, line): # if the tweet is not text, END READ immediately
                         reading = False
                         continue
-                    if line_num >= start_point:
+
+                    if line.strip() == RE_MENTION_START:
+                        skipping_mention = True
+                        mention_found = False
+                    elif not re.search(RE_DIV, line) and line_num >= start_point:
                         curr_content += clean_str(line.strip()) + " " # add message content, without the newline and leading/trailing whitespace
-                else: # THE PARSER IS CURRENTLY SKIPPING OVER AN EMOJI
-                    if re.search(RE_DIV, line):
+
+                    if re.search(RE_DIV, line) or re.search(RE_SPAN_END_END, line):
                         #print(curr_content)
                         tweet_contents[curr_id][KEY_CONTENT] = curr_content # add message contents to dict entry
                         reading = False
                         curr_content = ""
                         continue
-                    if re.search(RE_SPAN_START, line): 
+                else: # THE PARSER IS CURRENTLY SKIPPING OVER AN EMOJI/MENTION
+                    if skipping_mention:
+                        mention = re.search(RE_MENTION_HEADER, line) 
+                        if mention:
+                            end = re.search(RE_MENTION_END, line)
+                            curr_content += line[mention.end():end.start()] + " " # append the mention to the message
+                            #print(line[mention.end():end.start()])
+                            mention_found = True
+                    if mention_found and re.search(RE_SPAN_START, line): 
                         start_point = line_num + 1
                         skipping_emoji = False
+                        skipping_mention = False
+                        mention_found = True
+                    elif re.search(RE_DIV, line):
+                        #print(curr_content)
+                        tweet_contents[curr_id][KEY_CONTENT] = curr_content # add message contents to dict entry
+                        reading = False
+                        skipping_emoji = False
+                        skipping_mention = False
+                        mention_found = True
+                        curr_content = ""
+                        continue
 
                 if re.search(RE_EMOJI_START, line): # determine the start of an emoji, ignore all the info inside (shift start_point)
                     skipping_emoji = True
-                elif re.search(RE_SPAN_END, line): # END READ
-                    #print(curr_content)
-                    tweet_contents[curr_id][KEY_CONTENT] = curr_content # add message contents to dict entry
-                    reading = False
-                    curr_content = ""
     print(f"Finished parsing! Added {added}; Skipped {skipped}; Total entries is now {len(tweet_contents.keys())}")
 except FileNotFoundError:
     print("File not found")
